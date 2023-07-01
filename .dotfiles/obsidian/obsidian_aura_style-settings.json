@@ -1,0 +1,15 @@
+{
+  "aura@@aura-workspace-background": true,
+  "aura@@aura-workspace-background-image": "aura-workspace-background-image-custom",
+  "aura@@aura-workspace-background-image-custom-option": "url(\"https://cdnb.artstation.com/p/assets/images/images/056/051/447/4k/emilie-vaccarini-francis-cloud-base-copy2.jpg?1668361332\")",
+  "aura@@aura-workspace-background-workspace-slider": 0.4,
+  "aura@@aura-layout-select": "aura-card-layout",
+  "aura@@tab-outline-color@@dark": "#FFFFFF42",
+  "aura@@aura-card-shadows": true,
+  "aura@@aura-card-layout-actions": true,
+  "aura@@aura-card-layout-fileexplorer": true,
+  "aura@@aura-rainbow-folders": true,
+  "aura@@aura-folder-icons": true,
+  "aura@@aura-rainbow-tags": true,
+  "aura@@aura-heading-color": true
+}
