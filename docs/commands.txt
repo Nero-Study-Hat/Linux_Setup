@@ -1,0 +1,5 @@
+Get directory of a script.
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+Print in one line space separated all items in an array.
+echo "${chosen_apps[@]}"

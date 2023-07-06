@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # Set up drivers.
 
@@ -12,6 +13,6 @@ brave-bin \
 cool-retro-term
 
 # Manage dotfiles.
-cd
+cd || exit
 mkdir .dotfiles/cool-retro-term
 
