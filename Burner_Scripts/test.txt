@@ -1,0 +1,6 @@
+line 1
+line 2
+UUID=9e1125ec-ecc0-4fb1-9754-0dead41102dd     /mnt/data    ext4     relatime 0 2
+line 3
+line 4
+line 5

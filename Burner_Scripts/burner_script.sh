@@ -15,7 +15,11 @@
 #         exit 1
 #     fi
 # fi
-# ---
+
+# if sudo -u "$real_user" ls -la "/etc/sudoers.d/" > /dev/null 2>&1; then
+#     echo "This script should be run with sudo from a user that does not have root privleges."
+#     exit 1
+# fi
 
 # --- (Docs) Regarding permissions for commands and functions. (Docs)
 # sudo -u "$real_user" visudo # This will break.
@@ -25,48 +29,40 @@
 # su "$real_user" -c 'your_root_function' # This will break.
 # --- (Docs)
 
-declare -a apps=(
-    "code" # text editor
-    "cool-retro-term" # terminal emulator
-    "github-desktop" # github client
-    "direnv" # bash scripting utility
+
+declare -a test_dirs=(
+    "dir_1"
+    "dir_2"
+    "dir_3"
+    "dir_4"
 )
 
-read -r -p "Do you want to install all development apps, none, or make a custom selection of apps. (1/2/3)" apps_choice
-case "$apps_choice" in
+# for dir in "${test_dirs[@]}"; do
+#     abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
+#     if [ -d "$abs_dir_path" ]; then
+#         echo "Directory $dir exists."
+#         continue
+#     fi
 
-  1)
-    for app in "${apps[@]}"; do
-        yay -S "$app"
-    done
-    ;;
+#     if [ ! -L "$abs_dir_path" ]; then
+#         echo "Directory $dir link exists pointing to $(readlink -f "$abs_dir_path")."
+#     fi
+# done
 
-  2)
-    :
-    ;;
+for dir in "${test_dirs[@]}"; do
+    data_dir_path="/mnt/data"
+    abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
+    
+    if [ -d "$abs_dir_path" ] && [ ! -L "$abs_dir_path" ]; then
+        rmdir "$abs_dir_path"
+    fi
+    if [ -L "$abs_dir_path" ]; then
+        link_source_dir_path=$(readlink -f "$abs_dir_path")
+        echo "Directory $dir link exists pointing to $(readlink -f "$abs_dir_path")."
+        if [ ! "$link_source_dir_path" = "$data_dir_path" ]; then
+            unlink "$dir"
+        fi
+    fi
+done
 
-  3)
-    for i in "${!apps[@]}";
-    do 
-        printf "%s\t%s\n" "$i" "${apps[$i]}"
-    done
-
-    echo
-    read -r -p 'Input the numbers for the apps you want space separated: ' -a chosen_apps_indexes
-
-    declare -a chosen_apps
-    for app_index in "${chosen_apps_indexes[@]}"
-    do
-        chosen_apps+=("${apps[$app_index]}")
-    done
-
-    for app in "${chosen_apps[@]}"
-    do
-        yay -S "$app"
-    done
-    ;;
-
-  *)
-    STATEMENTS
-    ;;
-esac
+find /tmp/demo -maxdepth 0 -empty -exec echo {} is empty. \;

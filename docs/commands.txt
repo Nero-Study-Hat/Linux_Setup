@@ -3,3 +3,38 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 Print in one line space separated all items in an array.
 echo "${chosen_apps[@]}"
+
+----------- For Sudo -------------
+# Force user to run this script with root permissions using sudo from non root user.
+if ! [ "$(id -u)" = 0 ]; then
+   echo "The script need to be run as root." >&2
+   exit 1
+fi
+
+if [ "$SUDO_USER" ]; then
+    real_user=$SUDO_USER
+else
+    real_user=$(whoami)
+    if [ "$real_user" == "root" ]; then
+        echo "This script should be run with sudo from non root user."
+        exit 1
+    fi
+fi
+
+if sudo -u "$real_user" ls -la "/etc/sudoers.d/" > /dev/null 2>&1; then
+    echo "This script should be run with sudo from a user that does not have root privleges."
+    exit 1
+fi
+
+# --- (Docs) Regarding permissions for commands and functions. (Docs)
+# sudo -u "$real_user" visudo # This will break.
+
+# your_root_function () { visudo; }
+# export -f your_root_function
+# su "$real_user" -c 'your_root_function' # This will break.
+# --- (Docs)
+-----------------------------------
+
+for str in "${test_dirs[@]}"; do
+  echo $str
+done
