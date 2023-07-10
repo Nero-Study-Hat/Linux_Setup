@@ -43,50 +43,105 @@ declare -a home_directories=(
     "Workspace"
 )
 
+echo "HELP ME" #DEBUG
+
 declare -a home_directories_blacklist=()
 
-home_directory_cleanup () {
-    for dir in "${home_directories[@]}"; do
-        data_dir_path="/mnt/data"
-        abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
+# home_directory_cleanup () {
+#     for dir in "${home_directories[@]}"; do
+#         data_dir_path="/mnt/data"
+#         abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
         
-        if [ -d "$abs_dir_path" ] && [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then
-            rmdir "$abs_dir_path"
-        fi
+#         if [ -d "$abs_dir_path" ] && [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then
+#             rmdir "$abs_dir_path"
+#         fi
 
-        if [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then # Handle this.
-            echo "$abs_dir_path is not empty, skipping this directory."
-            home_directories_blacklist+=("$dir")
-            continue
-        fi
+#         if [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then # Handle this.
+#             echo "$abs_dir_path is not empty, skipping this directory."
+#             home_directories_blacklist+=("$dir")
+#             continue
+#         fi
 
-        if [ -L "$abs_dir_path" ]; then
-            link_source_dir_path=$(readlink -f "$abs_dir_path")
-            if [ "$link_source_dir_path" = "$data_dir_path/$dir" ];
-                then
-                    home_directories_blacklist+=("$dir")
-                    continue;
-                else
-                    if [ "$(find "$link_source_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ];
-                        then 
-                            unlink "$dir";
-                        else 
-                            echo "$dir points to a not empty directory, skipping this linked directory."
-                            home_directories_blacklist+=("$dir");
-                    fi;        
-            fi
-        fi
-    done
-}
+#         if [ -L "$abs_dir_path" ]; then
+#             link_source_dir_path=$(readlink -f "$abs_dir_path")
+#             if [ "$link_source_dir_path" = "$data_dir_path/$dir" ];
+#                 then
+#                     home_directories_blacklist+=("$dir")
+#                     continue;
+#                 else
+#                     if [ "$(find "$link_source_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ];
+#                         then 
+#                             unlink "$dir";
+#                         else 
+#                             echo "$dir points to a not empty directory, skipping this linked directory."
+#                             home_directories_blacklist+=("$dir");
+#                     fi;        
+#             fi
+#         fi
+#     done
+# }
 
-symlinking () {
-    for dir in "${home_directories[@]}"; do
-        if [[ ! ${home_directories_blacklist[*]} =~ ${dir} ]]; then
-            ln -s "$data_dir_path/$dir" "$HOME/$dir"
-        fi
-    done
-}
+# symlinking () {
+#     for dir in "${home_directories[@]}"; do
+#         if [[ ! ${home_directories_blacklist[*]} =~ ${dir} ]]; then
+#             ln -s "$data_dir_path/$dir" "$HOME/$dir"
+#         fi
+#     done
+# }
 
-# Regular user privleges.
-su "$real_user" -c 'home_directory_cleanup'
-su "$real_user" -c 'symlinking'
+# # Regular user privleges.
+# export -f home_directory_cleanup
+# export -f symlinking
+
+# su "$real_user" -c 'home_directory_cleanup'
+# su "$real_user" -c 'symlinking'
+
+for dir in "${home_directories[@]}"; do
+    data_dir_path="/mnt/data"
+    abs_dir_path="$HOME/$dir"
+
+    echo "abs dir path is -> $abs_dir_path" #DEBUG
+    
+    if [ -d "$abs_dir_path" ] && [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then
+        echo "removing $dir dir" #DEBUG
+
+        rmdir "$abs_dir_path"
+    fi
+
+    if [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then # Handle this.
+        echo "$abs_dir_path is not empty, skipping this directory."
+        home_directories_blacklist+=("$dir")
+        continue
+    fi
+
+    if [ -L "$abs_dir_path" ]; then
+        echo "$abs_dir_path is a link" #DEBUG
+
+        link_source_dir_path=$(readlink -f "$abs_dir_path")
+        if [ "$link_source_dir_path" = "$data_dir_path/$dir" ];
+            then
+                home_directories_blacklist+=("$dir")
+                continue;
+            else
+                if [ "$(find "$link_source_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ];
+                    then 
+                        unlink "$dir";
+                    else 
+                        echo "$dir points to a not empty directory, skipping this linked directory."
+                        home_directories_blacklist+=("$dir");
+                fi;        
+        fi
+    fi
+done
+
+for dir in "${home_directories[@]}"; do
+    echo "symlink dir is $dir" #DEBUG
+    echo "symlinking" #DEBUG
+
+    if [[ ! ${home_directories_blacklist[*]} =~ ${dir} ]]; then
+        ln -s "$data_dir_path/$dir" "$HOME/$dir"
+    fi
+done
+
+echo "\ \ / / | '__| __| | || |_| '_ \\"
+echo "\ \ / / | '__| __| | || |_| '_ "'\'
