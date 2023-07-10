@@ -37,32 +37,26 @@ declare -a test_dirs=(
     "dir_4"
 )
 
-# for dir in "${test_dirs[@]}"; do
-#     abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
-#     if [ -d "$abs_dir_path" ]; then
-#         echo "Directory $dir exists."
-#         continue
-#     fi
-
-#     if [ ! -L "$abs_dir_path" ]; then
-#         echo "Directory $dir link exists pointing to $(readlink -f "$abs_dir_path")."
-#     fi
-# done
-
 for dir in "${test_dirs[@]}"; do
     data_dir_path="/mnt/data"
     abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
     
-    if [ -d "$abs_dir_path" ] && [ ! -L "$abs_dir_path" ]; then
+    if [ -d "$abs_dir_path" ] && [ "$(find /home/nero/Music -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then
         rmdir "$abs_dir_path"
     fi
+
+    if [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then # Handle this.
+        echo "$abs_dir_path is not empty, skipping this directory."
+        continue
+    fi
+
     if [ -L "$abs_dir_path" ]; then
         link_source_dir_path=$(readlink -f "$abs_dir_path")
-        echo "Directory $dir link exists pointing to $(readlink -f "$abs_dir_path")."
         if [ ! "$link_source_dir_path" = "$data_dir_path" ]; then
-            unlink "$dir"
+            if [ "$(find "$link_source_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ];
+                then unlink "$dir";
+                else echo "$dir points to a not empty directory, skipping this linked directory.";
+            fi
         fi
     fi
 done
-
-find /tmp/demo -maxdepth 0 -empty -exec echo {} is empty. \;

@@ -35,6 +35,16 @@ fi
 # --- (Docs)
 -----------------------------------
 
+# Looping over an array.
 for str in "${test_dirs[@]}"; do
   echo $str
 done
+
+# Acting on whether an array contains a given value or not.
+if [[ " ${array[*]} " =~ " ${value} " ]]; then
+    # whatever you want to do when array contains value
+fi
+
+if [[ ! " ${array[*]} " =~ " ${value} " ]]; then
+    # whatever you want to do when array doesn't contain value
+fi

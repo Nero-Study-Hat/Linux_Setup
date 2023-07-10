@@ -43,21 +43,50 @@ declare -a home_directories=(
     "Workspace"
 )
 
+declare -a home_directories_blacklist=()
+
 home_directory_cleanup () {
     for dir in "${home_directories[@]}"; do
+        data_dir_path="/mnt/data"
         abs_dir_path="$HOME/Linux_Setup/Burner_Scripts/$dir"
         
-        if [ -d "$abs_dir_path" ] && [ ! -L "$abs_dir_path" ]; then
+        if [ -d "$abs_dir_path" ] && [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then
             rmdir "$abs_dir_path"
         fi
+
+        if [ "$(find "$abs_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ] && [ ! -L "$abs_dir_path" ]; then # Handle this.
+            echo "$abs_dir_path is not empty, skipping this directory."
+            home_directories_blacklist+=("$dir")
+            continue
+        fi
+
         if [ -L "$abs_dir_path" ]; then
             link_source_dir_path=$(readlink -f "$abs_dir_path")
-            echo "Directory $dir link exists pointing to $(readlink -f "$abs_dir_path")."
-            if [ ! "$link_source_dir_path" = "$data_dir_path" ]; then
-                unlink "$dir"
+            if [ "$link_source_dir_path" = "$data_dir_path/$dir" ];
+                then
+                    home_directories_blacklist+=("$dir")
+                    continue;
+                else
+                    if [ "$(find "$link_source_dir_path" -maxdepth 0 -empty  > /dev/null 2>&1)" ];
+                        then 
+                            unlink "$dir";
+                        else 
+                            echo "$dir points to a not empty directory, skipping this linked directory."
+                            home_directories_blacklist+=("$dir");
+                    fi;        
             fi
         fi
     done
 }
 
-su "$real_user" -c 'home_directory_cleanup' # Regular user privleges.
+symlinking () {
+    for dir in "${home_directories[@]}"; do
+        if [[ ! ${home_directories_blacklist[*]} =~ ${dir} ]]; then
+            ln -s "$data_dir_path/$dir" "$HOME/$dir"
+        fi
+    done
+}
+
+# Regular user privleges.
+su "$real_user" -c 'home_directory_cleanup'
+su "$real_user" -c 'symlinking'
