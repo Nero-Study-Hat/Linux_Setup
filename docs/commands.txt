@@ -48,3 +48,6 @@ fi
 if [[ ! " ${array[*]} " =~ " ${value} " ]]; then
     # whatever you want to do when array doesn't contain value
 fi
+
+# Print array values to a file new line separated.
+printf "%s\n" "${extension_urls[@]}" > "$urls_file"

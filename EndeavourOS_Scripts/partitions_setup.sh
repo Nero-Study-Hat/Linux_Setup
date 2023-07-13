@@ -29,7 +29,7 @@ chown "$USER":"$USER" "$data_dir_path"
 fstab_file="/etc/fstab"
 storage_partition_line="UUID=9e1125ec-ecc0-4fb1-9754-0dead41102dd     $data_dir_path    ext4     relatime 0 2"
 
-sed -i "13i $storage_partition_line" "$fstab_file"
+sed -i "13i $storage_partition_line" "$fstab_file" #TODO Check if line already exists.
 
 mount -a
 systemctl daemon-reload
