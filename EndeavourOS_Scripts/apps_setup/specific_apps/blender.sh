@@ -2,7 +2,8 @@
 
 # Does not require sudo.
 
-blender_save_path="$1"
+blender_save_path="$HOME/Dump"
+mkdir -p "$blender_save_path"
 
 blender_mirror="https://mirror.clarkson.edu/blender"
 blender_releases=$(wget "$blender_mirror/release/" -q -O -)
@@ -15,9 +16,11 @@ echo "$blender_releases" \
 
 blender_latest=$(wget "$blender_mirror/release/$latest_blender_release" -q -O -)
 
-latest_blender_release_download_url=$(
+download_file=$(
 echo "$blender_latest" \
 | grep "linux-x64" \
 | sed -r 's/.*href="([^"]+).*/\1/g')
+wget "$blender_mirror/release/$latest_blender_release$download_file" -P "$blender_save_path"
 
-curl -L -0 "$latest_blender_release_download_url" -o "$blender_save_path"
+tar zxf "$blender_save_path/$download_file" -C "$HOME/Downloads/Apps/"
+rm "$blender_save_path/$download_file"
