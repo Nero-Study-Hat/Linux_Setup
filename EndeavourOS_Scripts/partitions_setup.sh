@@ -21,13 +21,13 @@ if sudo -u "$real_user" ls -la "/etc/sudoers.d/" > /dev/null 2>&1; then
     exit 1
 fi
 
-data_dir_path="/mnt/data"
+data_dir_path="/mnt/nero_data"
 
 mkdir -p "$data_dir_path"
 chown "$USER":"$USER" "$data_dir_path"
 
 fstab_file="/etc/fstab"
-storage_partition_line="UUID=9e1125ec-ecc0-4fb1-9754-0dead41102dd     $data_dir_path    ext4     relatime 0 2"
+storage_partition_line="UUID=7c3d60df-09c1-4c37-963b-278cee6a6747     $data_dir_path    ext4     relatime 0 2"
 
 sed -i "13i $storage_partition_line" "$fstab_file" #TODO Check if line already exists.
 
@@ -48,7 +48,7 @@ declare -a home_directories_blacklist=()
 home="$(getent passwd "$SUDO_USER" | cut -d: -f6)"
 
 for dir in "${home_directories[@]}"; do
-    data_dir_path="/mnt/data"
+    data_dir_path="/mnt/nero_data"
     abs_dir_path="$home/$dir"
     
     if [ -d "$abs_dir_path" ] && [ ! "$(ls -A "$abs_dir_path")" ] && [ ! -L "$abs_dir_path" ]; then

@@ -1,0 +1,23 @@
+brave
+dolphin
+kwin-bismuth , lightly-qt , plasma-widgets-addons , kdeplasma-addons , plasma5-applets-todolist
+githib-desktop , vscode
+tldr
+steam
+virtualbox
+neofetch
+flameshot
+obsidian , remnote
+krita , blender
+yubico-authenticator
+gparted
+protonvpn
+fcitx5
+tor-browser
+yt-dlp
+pureref
+freetube
+davinci-resolve
+audacity
+distrobox
+docker , podman
