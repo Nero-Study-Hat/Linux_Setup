@@ -21,15 +21,25 @@ if sudo -u "$real_user" ls -la "/etc/sudoers.d/" > /dev/null 2>&1; then
     exit 1
 fi
 
-data_dir_path="/mnt/nero_data"
-
-mkdir -p "$data_dir_path"
-chown "$USER":"$USER" "$data_dir_path"
-
 fstab_file="/etc/fstab"
-storage_partition_line="UUID=7c3d60df-09c1-4c37-963b-278cee6a6747     $data_dir_path    ext4     relatime 0 2"
+nero_priv_data="/mnt/nero-priv-data"
 
-sed -i "13i $storage_partition_line" "$fstab_file" #TODO Check if line already exists.
+mkdir -p "$nero_priv_data"
+chown "$USER":"$USER" "$nero_priv_data"
+
+storage_partition_line_1="UUID=da2511cf-52b9-4a6d-a412-d9e2a75682e9     $nero_priv_data    ext4     relatime 0 2"
+
+sed -i "13i $storage_partition_line_1" "$fstab_file" #TODO Check if line already exists.
+
+
+nero_pub_data="/mnt/nero-pub-data"
+
+mkdir -p "$nero_pub_data"
+chown "$USER":"$USER" "$nero_pub_data"
+
+storage_partition_line_2="UUID=0EDEF0161E8E1A38     $nero_pub_data    ntfs     relatime 0 2"
+
+sed -i "14i $storage_partition_line_2" "$fstab_file" #TODO Check if line already exists.
 
 mount -a
 systemctl daemon-reload
@@ -48,7 +58,7 @@ declare -a home_directories_blacklist=()
 home="$(getent passwd "$SUDO_USER" | cut -d: -f6)"
 
 for dir in "${home_directories[@]}"; do
-    data_dir_path="/mnt/nero_data"
+    nero_priv_data="/mnt/nero-priv-data"
     abs_dir_path="$home/$dir"
     
     if [ -d "$abs_dir_path" ] && [ ! "$(ls -A "$abs_dir_path")" ] && [ ! -L "$abs_dir_path" ]; then
@@ -63,7 +73,7 @@ for dir in "${home_directories[@]}"; do
 
     if [ -L "$abs_dir_path" ]; then
         link_source_dir_path=$(readlink -f "$abs_dir_path")
-        if [ "$link_source_dir_path" = "$data_dir_path/$dir" ];
+        if [ "$link_source_dir_path" = "$nero_priv_data/$dir" ];
             then
                 home_directories_blacklist+=("$dir")
                 continue;
@@ -81,6 +91,6 @@ done
 
 for dir in "${home_directories[@]}"; do
     if [[ ! ${home_directories_blacklist[*]} =~ ${dir} ]]; then
-        sudo -u "$real_user" ln -s "$data_dir_path/$dir" "$home/$dir"
+        sudo -u "$real_user" ln -s "$nero_priv_data/$dir" "$home/$dir"
     fi
 done
